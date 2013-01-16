@@ -696,7 +696,7 @@ find_do_file (
 	std::string & base,
 	std::string & ext
 ) {
-	const char * const e(extension(b));
+	const char * const be(extension(b));
 	std::string dir(arg, static_cast<std::size_t>(b - arg));
 	for (;;) {
 		base = b;
@@ -708,14 +708,18 @@ find_do_file (
 		} else
 			redo_ifcreate_1(prog, dofile_name.c_str());
 
-		base = std::string(b, static_cast<std::size_t>(e - b));
-		ext = e;
-		dofile_name = dir + "default" + ext + ".do";
-		if (0 <= access(dofile_name.c_str(), F_OK)) {
-			redo_ifchange_1(prog, meta_depth + 1, dofile_name.c_str());
-			return true;
-		} else
-			redo_ifcreate_1(prog, dofile_name.c_str());
+		for (const char * e(be); ; e = extension(e + 1)) {
+			base = std::string(b, static_cast<std::size_t>(e - b));
+			ext = e;
+			dofile_name = dir + "default" + ext + ".do";
+			if (0 <= access(dofile_name.c_str(), F_OK)) {
+				redo_ifchange_1(prog, meta_depth + 1, dofile_name.c_str());
+				return true;
+			} else
+				redo_ifcreate_1(prog, dofile_name.c_str());
+
+			if (!*e) break;
+		}
 
 		std::string::size_type len(dir.length());
 		if (len < 2) return false;
@@ -989,15 +993,32 @@ run (
 
 static inline
 bool
-satisfies_prerequisites (
+exists(
+	const std::string & name
+) {
+	return 0 <= access(name.c_str(), F_OK);
+}
+
+static inline
+bool
+satisfies_existence (
 	const char * prog,
 	const std::string & target_name
 ) {
-	if (0 > access(target_name.c_str(), F_OK)) {
+	if (!exists(target_name)) {
 		if (verbose)
 			msg(prog, "INFO") << target_name << " needs rebuilding because it does not exist.\n";
 		return false;
 	}
+	return true;
+}
+
+static inline
+bool
+satisfies_prerequisites (
+	const char * prog,
+	const std::string & target_name
+) {
 	const std::string database_name(".redo/" + target_name + ".prereqs");
 	std::ifstream file(database_name.c_str());
 	if (file.fail()) return false;
@@ -1054,11 +1075,11 @@ bool
 is_sourcefile(
 	const std::string & name
 ) {
-	if (0 > access(name.c_str(), F_OK)) return false;
-	if (0 <= access((".redo/" + name + ".prereqs").c_str(), F_OK)) return false;
-	if (0 <= access((".redo/" + name + ".prereqsne").c_str(), F_OK)) return false;
-	if (0 <= access((".redo/" + name + ".prereqs.build").c_str(), F_OK)) return false;
-	if (0 <= access((".redo/" + name + ".prereqsne.build").c_str(), F_OK)) return false;
+	if (!exists(name)) return false;
+	if (exists(".redo/" + name + ".prereqs")) return false;
+	if (exists(".redo/" + name + ".prereqsne")) return false;
+	if (exists(".redo/" + name + ".prereqs.build")) return false;
+	if (exists(".redo/" + name + ".prereqsne.build")) return false;
 	return true;
 }
 
@@ -1107,15 +1128,16 @@ redo (
 
 	for ( std::vector<const char *>::const_iterator i = filev.begin(); i != filev.end(); ++i ) {
 		const char * arg(*i);
+		if (is_sourcefile(arg)) continue;
 		if (!unconditional) {
-			if (satisfies_prerequisites(prog, arg)) {
+			if (satisfies_existence(prog, arg)) {
 				if (recurse_prerequisites(prog, meta_depth, arg)
+				&&  satisfies_existence(prog, arg)
 				&&  satisfies_prerequisites(prog, arg)
 				)
 					continue;
 			}
 		}
-		if (is_sourcefile(arg)) continue;
 
 		jobs.push_back(Job());
 		Job & job(jobs.back());

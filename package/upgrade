@@ -7,11 +7,11 @@ then
 fi
 cwd="`/bin/pwd`"
 base_plus_version="`basename "${cwd}"`"
-base="`echo "${base_plus_version}" | sed -e 's/-[[:digit:]]\?[[:alnum:].]*$//'`"
+base="`echo "${base_plus_version}" | sed -e 's/-[[:digit:]][[:alnum:].]*$//'`"
 if [ "${base}" != "${base_plus_version}" ]
 then
-	ln -s -f -- "${base_plus_version}" ../"${base}"{new}
-	mv -f -T -- ../"${base}"{new} ../"${base}"
+	ln -s -f -- "${base_plus_version}" "${base}"
+	mv -f -- "${base}" ../
 else
 	echo 1>&2 "This is not a versioned package."
 fi

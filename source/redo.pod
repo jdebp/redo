@@ -39,7 +39,7 @@ Secondly, within each directory it searches for the "do" program by
 looking for successively shorter extension suffixes taken from the
 target.  To these it prepends the word F<default> and the suffix
 F<.do>.
-In the original directory, it also firstly checks for the full target
+It also, before doing that, checks for the full target
 filename with F<.do> appended.
 
 So if the target is F<dir/base.a.b>, it will look for 
@@ -47,6 +47,7 @@ F<dir/base.a.b.do>,
 F<dir/default.a.b.do>,
 F<dir/default.b.do>,
 F<dir/default.do>,
+F<base.a.b.do>,
 F<default.a.b.do>,
 F<default.b.do>, and
 F<default.do>.

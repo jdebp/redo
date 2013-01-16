@@ -1,3 +1,10 @@
+redo (1.1) unstable; urgency=low
+
+  * Altered the recursion algorithm of redo-ifchange to be more depth-first.
+  * Fixed the default.do search to include progressively shorter extensions, per the doco.
+
+ -- Jonathan de Boyne Pollard <J.deBoynePollard-newsgroups@NTLWorld.COM>  Mon, 16 Jan 2013 00:00:00 +0000
+
 redo (1.0) unstable; urgency=low
 
   * first version
