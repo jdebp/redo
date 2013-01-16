@@ -1,0 +1,54 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+=pod
+
+=head1 NAME
+
+redo-ifchange -- record and rebuild dependencies
+
+=head1 SYNOPSIS
+
+B<redo-ifchange> S<I<filenames>>...
+
+=head1 DESCRIPTION
+
+B<redo-ifchange> is a dependency redcording and rebuilding utility that is
+run by a "do" script that is in turn invoked by L<redo>.
+
+B<redo-ifchange> records that the current target (whose "do" script is being
+run) depends from the dependencies named I<filenames>.
+The dependency recorded is that the current target should be built if
+I<filenames> have changed.
+
+It also determines, using previously saved dependency information if
+available, which of the dependencies is itself out of date, and recursively
+attempts to re-build them, as if by invoking L<redo>.
+It delays processing of every dependency that is locked by a concurrent
+invocation of L<redo> or L<redo-ifchange>.
+
+=head2 CHANGES
+
+If a I<filename> denotes a (character or block) device file, a socket, a FIFO, or
+a directory, it is considered "changed" based solely upon its last modification
+timestamp.
+B<redo-ifchange> does not attempt to open or to read the contents of such
+files.
+
+If I<filename> denotes an ordinary file, it is considered "changed" based 
+upon a combination of its last modification timestamp and the CubeHash
+hash of its contents.
+To prevent re-calculating the hash value of a file repeatedly, 
+B<redo-ifchange> assumes that it a file's last modification timestamp has
+not changed, it has not been written to, and therefore the hash of its
+contents cannot have changed.
+
+In both cases, B<redo-ifchange> records the timestamp and hash information in
+the F<.redo> database.
+
+=head1 AUTHOR
+
+Jonathan de Boyne Pollard
+
+=cut

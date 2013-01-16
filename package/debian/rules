@@ -1,0 +1,31 @@
+#!/usr/bin/make -sf
+
+DIR=debian/redo
+
+.PHONY: build build-arch build-indep binary binary-arch binary-indep install clean
+
+build: build-arch build-indep 
+binary: binary-arch binary-indep 
+
+build-arch:
+	package/compile
+
+build-indep:
+	@true
+
+binary-arch: build-arch install
+	${RM} debian/files debian/substvars
+	dpkg-shlibdeps "${DIR}"/usr/local/bin/*
+	dpkg-gencontrol -predo -P"${DIR}"
+	dpkg -b "${DIR}" ../
+
+binary-indep: build-indep install
+	@true
+
+install:
+	install -d -m 0755 "${DIR}"/DEBIAN
+	package/export "${DIR}"/usr/local/
+
+clean:
+	${RM} debian/files debian/substvars
+	package/clean

@@ -1,0 +1,24 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+=pod
+
+=head1 NAME
+
+cubehash -- checksum utility
+
+=head1 SYNOPSIS
+
+B<cubehash> S<I<filename>>...
+
+=head1 DESCRIPTION
+
+B<cubehash> prints the CubeHash content hash values of each file named.  
+These content hash values are used by B<redo-ifchange>.
+
+=head1 AUTHOR
+
+Jonathan de Boyne Pollard
+
+=cut

@@ -1,0 +1,93 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+=pod
+
+=head1 NAME
+
+redo -- rebuild utility
+
+=head1 SYNOPSIS
+
+B<redo> S<I<filenames>>...
+
+=head1 DESCRIPTION
+
+B<redo> unconditionally attempts to rebuild the list of targets given as
+I<filenames>.
+It does this by executing a "do" program, that is expected both to build each
+target, and at the same time record what dependencies should cause
+the target to be rebuilt if given as a target to L<redo-ifchange>.
+
+"do" programs can invoke L<redo-ifchange>, which may recursively cause
+dependencies to have their "do" programs invoked.
+
+=head2 FINDING "do" PROGRAMS
+
+B<redo> has a two factor search for "do" programs.
+
+Firstly, it searches for "do" programs in a succession of directories,
+starting with the directory of the target and (if it does not have an
+absolute pathname) then checking each successively shorter path prefix
+until it ends with the current working directory.
+So if the target is F<a/b/c/d/e>, it will check F<a/b/c/d/>, then F<a/b/c/>,
+then F<a/b/>, then F<a/>, and then finally F<.> the current directory.
+For a target F</a/b/c/d/e>, on the other hand, it will only check F</a/b/c/d/>.
+
+Secondly, within each directory it searches for the "do" program by
+looking for successively shorter extension suffixes taken from the
+target.  To these it prepends the word F<default> and the suffix
+F<.do>.
+In the original directory, it also firstly checks for the full target
+filename with F<.do> appended.
+
+So if the target is F<dir/base.a.b>, it will look for 
+F<dir/base.a.b.do>,
+F<dir/default.a.b.do>,
+F<dir/default.b.do>,
+F<dir/default.do>,
+F<default.a.b.do>,
+F<default.b.do>, and
+F<default.do>.
+
+=head2 RUNNING "do" PROGRAMS
+
+A "do" program can be any kind of executable, although conventionally
+it is a script.  (B<redo> does not force a choice of shell, and the
+script must therefore begin with a C<#!> line that names the shell
+that the script is written for.)
+
+B<redo> invokes the program with a C<REDOFLAGS> environment variable, which it
+uses to pass option and target information to recursively executed instances of
+B<redo> (possibly invoked indirectly via L<redo-ifchange>).
+"do" programs should not alter, or inspect, the value of this variable.
+
+It also invokes the program with three arguments:
+
+=over
+
+=item
+
+the directory prefix and base name of the target (e.g. F<dir/base.a>)
+
+=item
+
+the extension part of the target that matched the F<default> file (e.g. F<.b>)
+
+=item
+
+the name of a temporary file where the target is to be built
+
+=back
+
+B<redo> performs atomic builds of individual targets.
+A target is built to a temporary filename (in the same directory),
+and if and only if the "do" program exits with a success status is
+that temporary filename atomically renamed to the actual target.
+
+=head1 AUTHOR
+
+Jonathan de Boyne Pollard
+
+=cut

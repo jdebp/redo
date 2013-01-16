@@ -1,0 +1,5 @@
+#!/bin/sh -e
+read cxx < ./cxx
+read cxxflags < ./cxxflags
+read ldflags < ./ldflags
+exec ${cxx} ${cxxflags} ${ldflags} -o "$@"

@@ -1,0 +1,5 @@
+#!/bin/sh -e
+read cxx < ./cxx
+read cxxflags < ./cxxflags
+read cppflags < ./cppflags
+exec ${cxx} ${cxxflags} ${cppflags} -o "$1" -c "$2"

@@ -1,0 +1,21 @@
+#!/bin/sh -e
+# See http://skarnet.org./software/compile.html
+if [ \! -d package -o \! -d source ]
+then
+	echo "You are not in the right directory." 1>&2
+	exit 100
+fi
+
+# Rebuild.
+cd build 
+objects="redo.o popt.o"
+for i in ${objects}
+do
+	./compile "$i" "`basename "$i" .o`".cpp "`basename "$i" .o`".d
+done
+./link redo ${objects}
+manuals="redo redo-ifcreate redo-ifchange cubehash"
+for i in ${manuals}
+do
+	pod2man --center "redo package" --release "v1.0" "$i".pod > "$i".1
+done

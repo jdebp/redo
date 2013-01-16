@@ -1,0 +1,32 @@
+#!/bin/sh -e
+# See http://skarnet.org./software/compile.html
+if [ \! -d package -o \! -d source ] 
+then
+	echo "You are not in the right directory." 1>&2 
+	exit 100
+fi
+
+root="${1-/usr/local/}"
+user="`id -un`"
+group="`id -gn`"
+
+mkdir -p "${root}"bin/ "${root}"man/man1
+commands="redo"
+aliases="redo-ifcreate redo-ifchange cubehash"
+for i in ${commands} ${aliases}
+do
+	rm -f "${root}"man/man1/"$i.1"{new}
+	install -m 0644 -o "${user}" -g "${group}" -- manual/"$i.1" "${root}"man/man1/"$i.1"{new}
+	mv -f -- "${root}"man/man1/"$i.1"{new} "${root}"man/man1/"$i.1"
+done
+for i in ${commands}
+do
+	rm -f "${root}"bin/"$i"{new}
+	install -m 0755 -o "${user}" -g "${group}" -- command/"$i" "${root}"bin/"$i"{new}
+	mv -f -- "${root}"bin/"$i"{new} "${root}"bin/"$i"
+done
+for i in ${aliases}
+do
+	ln -f -- ${root}bin/redo "${root}"bin/"$i"{new}
+	mv -f -- "${root}"bin/"$i"{new} "${root}"bin/"$i"
+done

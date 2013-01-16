@@ -1,0 +1,36 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+=pod
+
+=head1 NAME
+
+redo-ifcreate -- record dependencies
+
+=head1 SYNOPSIS
+
+B<redo-ifcreate> S<I<filenames>>...
+
+=head1 DESCRIPTION
+
+B<redo-ifcreate> is a dependency redcording utility that is
+run by a "do" script that is in turn invoked by L<redo>.
+
+B<redo-ifcreate> records that the current target (whose "do" script is being
+run) depends from the dependencies named I<filenames>.
+The dependency recorded is that the current target should be built if
+I<filenames> is created.
+In other words, the target depends from the non-existence of the
+dependencies.
+
+If a I<filename> denotes a file or directory that exists at the time that the
+command is run, then B<redo-ifcreate> exits with a failure status.
+If any of the dependencies are later created, the target will be considered
+out of date.
+
+=head1 AUTHOR
+
+Jonathan de Boyne Pollard
+
+=cut

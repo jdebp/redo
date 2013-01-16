@@ -1,0 +1,11 @@
+Source: redo
+Section: devel
+Priority: optional
+Maintainer: Jonathan de Boyne Pollard <J.deBoynePollard-newsgroups@ntlworld.com>
+
+Package: redo
+Architecture: amd64
+Depends: ${shlibs:Depends}
+Suggests: 
+Recommends: 
+Description: An implementation of Bernstein's redo proposal
