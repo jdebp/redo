@@ -2,25 +2,16 @@
 
 DIR=debian/redo
 
-.PHONY: build build-arch build-indep binary binary-arch binary-indep install clean
+.PHONY: build binary install clean
 
-build: build-arch build-indep 
-binary: binary-arch binary-indep 
-
-build-arch:
+build:
 	package/compile
 
-build-indep:
-	@true
-
-binary-arch: build-arch install
+binary: install
 	${RM} debian/files debian/substvars
 	dpkg-shlibdeps "${DIR}"/usr/local/bin/*
 	dpkg-gencontrol -predo -P"${DIR}"
 	dpkg -b "${DIR}" ../
-
-binary-indep: build-indep install
-	@true
 
 install:
 	install -d -m 0755 "${DIR}"/DEBIAN

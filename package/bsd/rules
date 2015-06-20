@@ -1,0 +1,38 @@
+#!/usr/bin/make -sf
+
+# This is modelled on the Debian dpkg build ruleset.
+
+.PHONY: build binary stage control clean
+
+# Target this in order to make the package contents.
+build:
+	package/compile
+
+# Target this in order to clean the build areas.
+clean:
+	for i in redo ; \
+	do \
+		rm -r -f bsd/"$$i"/ || exit 1 ; \
+	done
+	rm -r -f bsd/tmp/
+
+# Target this in order to make the package files.
+binary: stage control
+	for i in redo ; \
+	do \
+		echo 1>&2 "Building package "$$i ; \
+		bsd/pkgcreate bsd/"$$i"/ bsd/"$$i"/ "$$i" || exit 1 ; \
+	done
+
+stage:
+	echo 1>&2 "Building exported image."
+	package/export bsd/tmp/ bsd/tmp/ bsd/tmp/
+	echo 1>&2 "Building staging areas."
+	package/stage bsd/tmp bsd
+
+control:
+	for i in redo ; \
+	do \
+		echo 1>&2 "Building control file for "$$i"." ; \
+		bsd/gencontrol "$$i" bsd/"$$i" || exit 1 ; \
+	done

@@ -2,6 +2,7 @@ Source: redo
 Section: devel
 Priority: optional
 Maintainer: Jonathan de Boyne Pollard <J.deBoynePollard-newsgroups@ntlworld.com>
+Build-Depends: perl
 
 Package: redo
 Architecture: amd64

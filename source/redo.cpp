@@ -260,8 +260,10 @@ split(
 	bool prefixdash
 ) {
 	std::list<std::string> l;
-	while (*s) {
+	if (prefixdash && *s && std::isspace(*s)) prefixdash = false;
+	for (;;) {
 		while (!prefixdash && *s && std::isspace(*s)) ++s;
+		if (!*s) break;
 		std::string r(prefixdash ? "-" : "");
 		prefixdash = false;
 		bool quoted(false);
@@ -1262,6 +1264,14 @@ main ( int argc, const char * argv[] )
 				p.process(false /* allow intermingling of options and arguments */);
 				if (p.stopped())
 					msg(prog, "WARNING") << var << ": Ignoring halt of option processing.\n";
+				if (1 == i) {	// Special bodge for MAKEFLAGS, which BSD make puts macro definitions into.
+					for ( std::vector<const char *>::iterator j = filev.begin(); j != filev.end(); ) {
+						if (std::strchr(*j, '='))
+							j = filev.erase(j);
+						else
+							++j;
+					}
+				}
 				if (!filev.empty())
 					msg(prog, "WARNING") << var << ": Ignoring filenames.\n";
 				if (jobserver_fds_c_str) { jobserver_fds_string = jobserver_fds_c_str; jobserver_fds_c_str = 0; }

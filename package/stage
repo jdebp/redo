@@ -1,0 +1,36 @@
+#!/bin/sh -e
+# See http://skarnet.org./software/compile.html
+if [ \! -d package ] || [ \! -d source ] 
+then
+	echo "You are not in the right directory." 1>&2 
+	exit 100
+fi
+if ! test $# -ge 2
+then
+	echo "Two arguments are required." 1>&2 
+	exit 100
+fi
+
+src="${1}"
+dest="${2}"
+
+# binaries and doco
+for i in redo ;
+do
+	if test -s package/"$i".commands1 || test -s package/"$i".aliases1 ;
+	then
+		install -d -m 0755 "${dest}"/"$i"/usr/local/bin 
+		install -d -m 0755 "${dest}"/"$i"/usr/local/man/man1 
+	fi
+	while read j ;
+	do
+		ln -f -- "${src}"/bin/"$j" "${dest}"/"$i"/usr/local/bin/ 
+		ln -f -- "${src}"/man/man1/"$j".1 "${dest}"/"$i"/usr/local/man/man1/ 
+	done < package/"$i".commands1 ;
+
+	while read c a ;
+	do
+		ln -f -s "$c" "${dest}"/"$i"/usr/local/bin/"$a" 
+		ln -f -s "$c".1 "${dest}"/"$i"/usr/local/man/man1/"$a".1 
+	done < package/"$i".aliases1 ;
+done
