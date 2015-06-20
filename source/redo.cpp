@@ -1237,6 +1237,7 @@ main ( int argc, const char * argv[] )
 			&keep_going_option,
 			&verbose_option,
 			&print_option,
+			&jobs_option,
 			&jobserver_option,
 			&ignore
 		};
@@ -1248,6 +1249,7 @@ main ( int argc, const char * argv[] )
 			&keep_going_option,
 			&verbose_option,
 			&print_option,
+			&jobs_option,
 			&jobserver_option,
 			&redoparent_option,
 		};
