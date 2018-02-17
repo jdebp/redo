@@ -115,6 +115,33 @@ basename_of (
 	return s;
 }
 
+static inline
+bool
+is_root(const char *path)
+{
+#if defined(__OS2__) || defined(__WIN32__) || defined(__NT__)
+	if (std::isalpha(path[0]) && ':' == path[1])
+		path += 2;
+	return (('/' == path[0]) || ('\\' == path[0])) && !path[1];
+#else
+	return ('/' == path[0]) && !path[1];
+#endif
+}
+
+static inline
+bool
+is_dot_or_dotdot(const char *path)
+{
+	return !path[0] || (('.' == path[0]) && (!path[1] || (('.' == path[1]) && !path[2])));
+}
+
+static inline
+bool
+is_root_or_ends_with_dot_or_dotdot(const char *path)
+{
+	return is_root(path) || is_dot_or_dotdot(basename_of(path));
+}
+
 /* Wrappers for POSIX API calls. ********************************************
 // **************************************************************************
 */
@@ -187,6 +214,8 @@ static inline
 int
 rmrf(const char *path)
 {
+	if (is_root_or_ends_with_dot_or_dotdot(path))
+		return errno = EINVAL, -1;
 	struct stat stbuf;
 	if (0 <= posix_lstat(path, &stbuf) && S_ISDIR(stbuf.st_mode))
 		return nftw(path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
@@ -1130,6 +1159,7 @@ redo (
 
 	for ( std::vector<const char *>::const_iterator i = filev.begin(); i != filev.end(); ++i ) {
 		const char * arg(*i);
+		if (is_root_or_ends_with_dot_or_dotdot(arg)) continue; // Treat as source files, because they always exist.
 		if (is_sourcefile(arg)) continue;
 		if (!unconditional) {
 			if (satisfies_existence(prog, arg)) {
